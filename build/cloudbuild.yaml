@@ -1,0 +1,27 @@
+substitutions:
+  _REGION: 'us-central1'        
+  _IMAGE_NAME: 'hello-world-image'
+  _ARTIFACT_REGISTRY: 'hello'
+  _SERVICE_ACCOUNT: 'demo-cb@gcp-az-prj-439316.iam.gserviceaccount.com'
+
+serviceAccount: 'projects/gcp-az-prj-439316/serviceAccounts/$_SERVICE_ACCOUNT'
+steps:
+  # Step 1: Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', '$_REGION-docker.pkg.dev/$PROJECT_ID/$_ARTIFACT_REGISTRY/$_IMAGE_NAME:latest',
+      '.'
+    ]
+  
+  # Step 2: Push the Docker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push', '$_REGION-docker.pkg.dev/$PROJECT_ID/$_ARTIFACT_REGISTRY/$_IMAGE_NAME:latest'
+    ]
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  
+timeout: '600s'
+
