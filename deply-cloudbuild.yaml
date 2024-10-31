@@ -1,5 +1,5 @@
 substitutions:
-  _VM_NAME: 'helo-world-vm'
+  _VM_NAME: 'hello-world-vm'
   _VM_ZONE: 'us-central1-a'
   _REGION: 'us-central1'
   _IMAGE_NAME: 'hello-world-image'
