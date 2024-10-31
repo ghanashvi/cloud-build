@@ -13,8 +13,8 @@ steps:
       - '-c'
       - |
         apk add --no-cache git && \
-        COMMIT_ID=$(git rev-parse --short HEAD) && \
-        echo $COMMIT_ID > /workspace/commit_id.txt
+        _COMMIT_ID=$(git rev-parse --short HEAD) && \
+        echo $_COMMIT_ID > /workspace/commit_id.txt
 
   # Step 2: Build the Docker image with the commit ID as the tag
   - name: 'gcr.io/cloud-builders/docker'
