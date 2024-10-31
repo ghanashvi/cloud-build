@@ -1,9 +1,9 @@
 substitutions:
-  _VM_NAME: 'helo-vm'
+  _VM_NAME: 'helo-world-vm'
   _VM_ZONE: 'us-central1-a'
   _REGION: 'us-central1'
   _IMAGE_NAME: 'hello-world-image'
-  _ARTIFACT_REGISTRY: 'hello'
+  _ARTIFACT_REGISTRY: 'hello-world'
   _SERVICE_ACCOUNT: 'custom-cb@gcp-az-prj-439316.iam.gserviceaccount.com'
 
 serviceAccount: 'projects/gcp-az-prj-439316/serviceAccounts/$_SERVICE_ACCOUNT'
