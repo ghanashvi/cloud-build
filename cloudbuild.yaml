@@ -1,34 +1,42 @@
 substitutions:
   _REGION: 'us-central1'        
   _IMAGE_NAME: 'hello-world-image'
-  _ARTIFACT_REGISTRY: 'hello-world'
+  _ARTIFACT_REGISTRY: 'hello'
   _SERVICE_ACCOUNT: 'demo-cb@gcp-az-prj-439316.iam.gserviceaccount.com'
 
 serviceAccount: 'projects/gcp-az-prj-439316/serviceAccounts/$_SERVICE_ACCOUNT'
 steps:
-  # Step 1: Get the short commit ID
+  # Step 1: Get the short commit ID and store it in an environment variable
   - name: 'alpine'
+    id: 'fetch-commit-id'
     entrypoint: 'sh'
     args:
       - '-c'
       - |
         apk add --no-cache git && \
-        _COMMIT_ID=$(git rev-parse --short HEAD) && \
-        echo $_COMMIT_ID > /workspace/commit_id.txt
+        COMMIT_ID=$(git rev-parse --short HEAD) && \
+        echo "COMMIT_ID=${COMMIT_ID}" > /workspace/env_vars
+
+  # Load commit ID from env_vars file
+  - name: 'alpine'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - . /workspace/env_vars && echo "Commit ID: $COMMIT_ID"
 
   # Step 2: Build the Docker image with the commit ID as the tag
   - name: 'gcr.io/cloud-builders/docker'
-    args: [
-      'build',
-      '-t', '$_REGION-docker.pkg.dev/$PROJECT_ID/$_ARTIFACT_REGISTRY/$_IMAGE_NAME:$(cat /workspace/commit_id.txt)',
-      '.'
-    ]
-  
+    args:
+      - 'build'
+      - '-t'
+      - '$_REGION-docker.pkg.dev/$PROJECT_ID/$_ARTIFACT_REGISTRY/$_IMAGE_NAME:${COMMIT_ID}'
+      - '.'
+
   # Step 3: Push the Docker image to Artifact Registry with the commit ID as the tag
   - name: 'gcr.io/cloud-builders/docker'
-    args: [
-      'push', '$_REGION-docker.pkg.dev/$PROJECT_ID/$_ARTIFACT_REGISTRY/$_IMAGE_NAME:$(cat /workspace/commit_id.txt)'
-    ]
+    args:
+      - 'push'
+      - '$_REGION-docker.pkg.dev/$PROJECT_ID/$_ARTIFACT_REGISTRY/$_IMAGE_NAME:${COMMIT_ID}'
 
 options:
   logging: CLOUD_LOGGING_ONLY
