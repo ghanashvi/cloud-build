@@ -1,0 +1,36 @@
+substitutions:
+  _VM_NAME: 'helo-vm'
+  _VM_ZONE: 'us-central1-a'
+  _REGION: 'us-central1'
+  _IMAGE_NAME: 'hello-world-image'
+  _ARTIFACT_REGISTRY: 'hello'
+  _SERVICE_ACCOUNT: 'custom-cb@gcp-az-prj-439316.iam.gserviceaccount.com'
+
+serviceAccount: 'projects/gcp-az-prj-439316/serviceAccounts/$_SERVICE_ACCOUNT'
+steps:
+  # Step 1: SSH into the VM and authenticate with Artifact Registry, then pull the Docker image
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud compute ssh $_VM_NAME --zone=$_VM_ZONE --tunnel-through-iap --command="
+
+          # Authenticate Docker with Artifact Registry
+          token=\$(gcloud auth print-access-token) && echo \$token | sudo docker login -u oauth2accesstoken --password-stdin https://$_REGION-docker.pkg.dev
+          
+          # Pull the Docker image
+          sudo docker pull $_REGION-docker.pkg.dev/$PROJECT_ID/$_ARTIFACT_REGISTRY/$_IMAGE_NAME:${SHORT_SHA}
+
+          # Stop and remove any existing container if running
+          sudo docker stop hello-world-container || true
+          sudo docker rm hello-world-container || true
+          
+          # Run the new container
+          sudo docker run -d -p 8080:8080 --name hello-world-container $_REGION-docker.pkg.dev/$PROJECT_ID/$_ARTIFACT_REGISTRY/$_IMAGE_NAME:${SHORT_SHA}
+        "
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: '1200s'
