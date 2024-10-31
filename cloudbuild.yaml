@@ -1,7 +1,7 @@
 substitutions:
   _REGION: 'us-central1'        
   _IMAGE_NAME: 'hello-world-image'
-  _ARTIFACT_REGISTRY: 'hello'
+  _ARTIFACT_REGISTRY: 'hello-world'
   _SERVICE_ACCOUNT: 'demo-cb@gcp-az-prj-439316.iam.gserviceaccount.com'
 
 serviceAccount: 'projects/gcp-az-prj-439316/serviceAccounts/demo-cb@gcp-az-prj-439316.iam.gserviceaccount.com'
